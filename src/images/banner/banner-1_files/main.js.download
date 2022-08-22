@@ -1,0 +1,379 @@
+/*SCROLL TOP BTN*/
+
+$(document).ready(function () {
+	$(window).scroll(function () {
+		if ($(this).scrollTop() > 100) {
+			$('#scroll').fadeIn();
+		} else {
+			$('#scroll').fadeOut();
+		}
+	});
+	$('#scroll').click(function () {
+		$("html, body").animate({
+			scrollTop: 0
+		}, 600);
+		return false;
+	});
+
+
+
+
+
+
+
+
+
+
+
+
+	var captchaUrlPath = $('#achievers_path').val() + 'home/refresh';
+	$('.refreshCaptcha').click(function () {
+		refreshCaptcha();
+	});
+
+	function refreshCaptcha() {
+		$.get(captchaUrlPath, function (data) {
+			$('.captImg').html(data);
+		});
+	}
+
+	$('#curriculum_captchaerror').text("");
+	$('#startlearning_captchaerror').text("");
+	$('#lovedReviews_captchaerror').text("");
+
+	$('#curriculumForm').submit(function (e) {
+		e.preventDefault();
+		let formData = $(this).serializeArray();
+		let emailVal = $.trim(formData[0].value);
+		let phoneVal = $.trim(formData[1].value);
+		let captchaText = $.trim(formData[2].value);
+		if (captchaText.length != 6 && captchaText.length > 0) {
+			$('#curriculum_captchaerror').text("Invalid Captcha entered.");
+		} else if (emailVal.length > 0 && phoneVal.length == 10 && captchaText.length == 6) {
+			console.log("Make AJAX call");
+			catchRequestLead(emailVal, phoneVal, captchaText, 'curriculumForm');
+		}
+	});
+
+	$('#impressesByUs').submit(function (e) {
+		e.preventDefault();
+		let formData = $(this).serializeArray();
+		let emailVal = $.trim(formData[0].value);
+		let phoneVal = $.trim(formData[1].value);
+		let captchaText = $.trim(formData[2].value);
+		if (captchaText.length != 6 && captchaText.length > 0) {
+			$('#impressesByUs_captchaerror').text("Invalid Captcha entered.");
+		} else if (emailVal.length > 0 && phoneVal.length == 10 && captchaText.length == 6) {
+			console.log("Make AJAX call");
+			catchRequestLead(emailVal, phoneVal, captchaText, 'impressesByUs');
+		}
+	});
+
+	$('#loved_reviews').submit(function (e) {
+		e.preventDefault();
+		let lovedReviews = $(this).serializeArray();
+		let lrEmailVal = $.trim(lovedReviews[0].value);
+		let lrPhoneVal = $.trim(lovedReviews[1].value);
+		let lrCaptchaText = $.trim(lovedReviews[2].value);
+
+		if (lrCaptchaText.length != 6 && lrCaptchaText.length > 0) {
+			$('#lovedReviews_captchaerror').text("Invalid Captcha entered.");
+		} else if (lrEmailVal.length > 0 && lrPhoneVal.length == 10 && lrCaptchaText.length == 6) {
+			console.log("Make AJAX call");
+			catchRequestLead(lrEmailVal, lrPhoneVal, lrCaptchaText, 'lovedReviews');
+		}
+	});
+
+	$("#startLearning").submit(function (e) {
+		e.preventDefault();
+		let startLearning = $(this).serializeArray();
+		let slEmailVal = $.trim(startLearning[0].value);
+		let slPhoneVal = $.trim(startLearning[1].value);
+		let slCaptchaText = $.trim(startLearning[2].value);
+		if (slCaptchaText.length != 6 && slCaptchaText.length > 0) {
+			$('#startlearning_captchaerror').text("Invalid Captcha entered.");
+		} else if (slEmailVal.length > 0 && slPhoneVal.length == 10 && slCaptchaText.length == 6) {
+			console.log("Make AJAX call");
+			catchRequestLead(slEmailVal, slPhoneVal, slCaptchaText, 'startLearning');
+		}
+	});
+
+
+	// $('#contact-model').on('hidden.bs.modal', function () {
+	// 	$(this).find('form').trigger('reset');
+	// })
+
+	// $('#contact-model').on('hidden.bs.modal', function (e) {
+	// 	$(this)
+	// 		.find("input,textarea,select")
+	// 		.val('')
+	// 		.end()
+	// 		.find("input[type=checkbox], input[type=radio]")
+	// 		.prop("checked", "")
+	// 		.end();
+	// })
+
+
+	$('#contact-model').on('hidden.bs.modal', function () {
+		$(this).find('form')[0].reset();
+	});
+
+
+	$('#contact_modal_form').submit(function (evnt) {
+		evnt.preventDefault();
+		$(".invalidCaptchaData").text("");
+		let contactusData = $(this).serializeArray();
+		//console.log(contactusData); return false;
+		let lead = $.trim(contactusData[0].value);
+		let userName = $.trim(contactusData[1].value);
+		let useremail = $.trim(contactusData[2].value);
+		let userPhone = $.trim(contactusData[3].value);
+		let userMsg = $.trim(contactusData[4].value);
+		let userCaptcha = $.trim(contactusData[5].value);
+		if (userName.length == 0 || useremail.length == 0 || userPhone.length == 0 || userMsg.length == 0 || userCaptcha.length == 0) {
+			$("#contact_modal_form").addClass('was-validated');
+			return false;
+		}
+		var callBackURL = $('#achievers_path').val() + 'requestCallBack';
+		let pageName = $(location).attr("href");
+		let formData = { "lead": lead, "name": userName, "email": useremail, "phone": userPhone, "captcha": userCaptcha, "userMessage": userMsg, "page": pageName };
+		if (userCaptcha.length < 6) {
+			$(".invalidCaptchaData").text("Please enter Captcha Text as shown in image.");
+			return false;
+		}
+		$.ajax(callBackURL, {
+			type: 'POST',  // http method
+			dataType: "json",
+			data: { myData: formData },  // data to submit
+			success: function (data, status, xhr) {
+				if (data.status == 'failed') {
+					$(".invalidCaptchaData").text("Invalid Captcha. Please enter as shown in image.");
+				} else {
+					refreshCaptcha();
+					$(".invalidCaptchaData").text("");
+					$("#contact-model").modal('hide');
+
+					// open the other modal
+					$("#thankyou-model").modal("show");
+
+				}
+			},
+			error: function (jqXhr, textStatus, errorMessage) {
+				//$('p').append('Error: ' + errorMessage);
+				console.log("Failed, errorMessage :" + errorMessage);
+			}
+		});
+
+		//console.log(contactusData);
+	});
+
+	function catchRequestLead(email, phone, captcha, leadsource) {
+		var captureLeadRequestURL = $('#achievers_path').val() + 'captureLeadRequest';
+		let pageName = $(".course_name_span").text();
+		let postData = { "email": email, "phone": phone, "captcha": captcha, "source": leadsource, "page": pageName };
+		$.ajax(captureLeadRequestURL, {
+			type: 'POST',  // http method
+			dataType: "json",
+			data: { myData: postData },  // data to submit
+			success: function (data, status, xhr) {
+				if (data.status == 'failed') {
+					if (leadsource == 'lovedReviews') {
+						$('#lovedReviews_captchaerror').text(data.message);
+					}
+
+					if (leadsource == 'startLearning') {
+						$("#startlearning_captchaerror").text(data.message);
+					}
+
+					if (leadsource == 'curriculumForm') {
+						$('#curriculum_captchaerror').text(data.message);
+					}
+					if (leadsource == 'impressesByUs') {
+						$('#impressesByUs_captchaerror').text(data.message);
+					}
+				} else {
+					//success
+					refreshCaptcha();
+					$("#thankyou-model").modal("show");
+					/*
+					if (leadsource == 'lovedReviews') {
+						//clear user input values
+						$(".user-email").val('');
+						$(".user-phone").val('');
+						$(".captcha-input").val('');
+						$('#lovedReviews_captchaerror').text("");
+						//show success message
+						$('.love-reviews-success').addClass('alert');
+						$('.love-reviews-success').addClass('alert-success');
+						$('.love-reviews-success').text("We have captured your details & get back to you shortly. Thank you");
+					}
+
+					if (leadsource == 'startLearning') {
+						//clear user input values
+						$(".user-email").val('');
+						$(".user-phone").val('');
+						$(".captcha-input").val('');
+						$('#startlearning_captchaerror').text("");
+						//show success message
+						$('.start-learning-success').addClass('alert');
+						$('.start-learning-success').addClass('alert-success');
+						$('.start-learning-success').text("We have captured your details & get back to you shortly. Thank you");
+					}
+					if (leadsource == 'impressesByUs') {
+						//clear user input values
+						$(".user-email").val('');
+						$(".user-phone").val('');
+						$(".captcha-input").val('');
+						$('#impressesByUs_captchaerror').text("");
+						//show success message
+						$('.impressesByUs-success').addClass('alert');
+						$('.impressesByUs-success').addClass('alert-success');
+						$('.impressesByUs-success').text("We have captured your details & get back to you shortly. Thank you");
+					}
+
+					if (leadsource == 'curriculumForm') {
+						$('#curriculum_captchaerror').text("");
+						//clear user input values
+						$(".user-email").val('');
+						$(".user-phone").val('');
+						$(".captcha-input").val('');
+						//show success message
+						$('.Curriculum-success').addClass('alert');
+						$('.Curriculum-success').addClass('alert-success');
+						$('.Curriculum-success').text("We have captured your details & get back to you shortly. Thank you");
+					}
+					*/
+				}
+			},
+			error: function (jqXhr, textStatus, errorMessage) {
+				//$('p').append('Error: ' + errorMessage);
+				console.log("Failed, errorMessage :" + errorMessage);
+			}
+		});
+	}
+});
+
+function contactus(sourceTxt, modalTitle) {
+	//alert(sourceTxt);
+	$('.title').val(sourceTxt);
+	$('.title-bar').text(modalTitle);
+	$(".invalidCaptchaData").text("");
+	$("#contact-model").modal('show');
+}
+
+function formdata(data, title) {
+	this.contactus(data, title);
+}
+
+
+/*-----------------------------------------------------------------------*/
+/*COURSE PAGE STICKY*/
+$('body').scrollspy({
+	target: "#course-sticky"
+});
+
+/*----------------------------------------------------------------------------*/
+
+/*CAROUSEL*/
+$('.carousel').carousel({
+	interval: 4000
+});
+
+/*FORM VALIDATIONS*/
+(function () {
+	'use strict';
+	window.addEventListener('load', function () {
+		// Fetch all the forms we want to apply custom Bootstrap validation styles to
+		var forms = document.getElementsByClassName('needs-validation');
+		// Loop over them and prevent submission
+		var validation = Array.prototype.filter.call(forms, function (form) {
+			form.addEventListener('submit', function (event) {
+				if (form.checkValidity() === false) {
+					event.preventDefault();
+					event.stopPropagation();
+				}
+				form.classList.add('was-validated');
+			}, false);
+		});
+	}, false);
+})();
+
+/*------------------------------------*/
+window.FontAwesomeConfig = {
+	searchPseudoElements: true
+}
+/*-----------------------------------*/
+
+/*-----------------------------------*/
+$(document).ready(function () {
+	// SHOWING AND HIDING MENU
+	$('#button-menu').click(function () {
+		if ($('#button-menu').attr('class') == 'btn-open') {
+
+			$('.navegacion').css({
+				'width': '100%',
+				'background': 'rgba(0,0,0,.5)'
+			}); // We show the transparent background
+			$('#button-menu').removeClass('btn-open').addClass('f00d'); // We add the X icon
+			$('.navegacion .menu').css({
+				'left': '0px'
+			}); //We show the menu
+
+		} else {
+
+			$('.navegacion').css({
+				'width': '0%',
+				'background': 'rgba(0,0,0,.0)'
+			}); // We hide the transparent background
+			$('#button-menu').removeClass('f00d').addClass('btn-open'); // We add the Menu icon
+			$('.navegacion').css({
+				'display': 'block'
+			});
+			$('.navegacion .submenu').css({
+				'left': '-320px'
+			}); // We hide the submenus
+			$('.navegacion .menu').css({
+				'left': '-320px'
+			}); // We hide the Menu
+
+		}
+	});
+
+	// SHOWING SUBMENU
+	$('.navegacion .menu > .item-submenu a').click(function () {
+
+		var positionMenu = $(this).parent().attr('menu'); // We look for the value of the menu attribute and save it in a variable
+		console.log(positionMenu);
+
+		$('.item-submenu[menu=' + positionMenu + '] .submenu').css({
+			'left': '0px'
+		}); // We show the corresponding submenu
+
+	});
+
+	//HIDING SUBMENU
+	$('.navegacion .submenu li.go-back').click(function () {
+
+		$(this).parent().css({
+			'left': '-320px'
+		}); // We hide the submenu
+
+	});
+});
+
+
+
+
+/*--------------------------------------------------------------------------*/
+var nav_courses = document.getElementById('nav_courses');
+//When the user clicks anywhere outside of the modal, close it
+if (nav_courses != null) {
+	nav_courses.onclick = function (event) {
+		if (event.target == nav_courses) {
+			nav_courses.style.width = "0%";
+			document.querySelector('#nav_courses .menu').style.left = '-320px';
+			$('#button-menu').removeClass('f00d').addClass('btn-open');
+		}
+	}
+}
+

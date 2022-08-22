@@ -1,0 +1,64 @@
+ .position {
+     cursor: pointer;
+     float: right;
+     font-size: 14px;
+     text-align: center;
+     text-transform: uppercase;
+     transform: rotate(-90deg);
+     top: 50%;
+     position: fixed;
+     right: -3.6%;
+     z-index: 1030;
+ }
+.position .turned-button{
+    padding: 5px 15px;
+    text-transform: uppercase;
+    font-size: 17px;
+}
+.position .turned-button:active,.position .turned-button:focus{
+    box-shadow: none!important
+}
+
+ .dropup {
+     position: fixed;
+     top: 629px;
+     left: 1199px;
+
+ }
+
+ .size {
+     width: 300px;
+ }
+
+ .width_size {
+     width: 250px;
+ }
+
+ .color_size {
+     font-size: 45px;
+     color: blue;
+
+
+ }
+
+ .dropdown-header {
+     font-size: 25px;
+ }
+
+
+
+@media screen and (min-width: 320px) and (max-width :600px) {
+	.position {
+		right: -17% !important;
+	}
+}
+@media screen and (min-width: 375px) and (max-width :600px) {
+	.position {
+		right: -15% !important;
+	}
+}
+@media screen and (min-width: 425px) and (max-width :600px) {
+	.position {
+		right: -13% !important;
+	}
+}
